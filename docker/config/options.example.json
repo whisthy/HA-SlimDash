@@ -1,0 +1,16 @@
+{
+  "dashboards": [
+    {
+      "name": "tablet",
+      "dashboard": "lovelace",
+      "views": "",
+      "tabs_bottom": false,
+      "refresh": 0,
+      "device": "auto"
+    }
+  ],
+  "allowed_networks": [
+    "192.168.0.0/16"
+  ],
+  "log_level": "info"
+}
