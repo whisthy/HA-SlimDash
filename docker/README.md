@@ -67,6 +67,49 @@ On Synology, create a Container Manager Project using this Compose file and pres
 - The current application reads its options from `/data/options.json`. The token is supplied as an environment variable; Docker secrets are not supported by the current application code.
 - The container runs the upstream Dockerfile as provided. Non-root hardening and a health check remain follow-up improvements.
 
+## HTTPS reverse proxy and screen wake lock
+
+The browser code includes optional Screen Wake Lock support. On a compatible browser, the
+first touch or click requests a screen wake lock. SlimDash releases it when the page is hidden
+and tries to reacquire it when the page becomes visible. The browser must support
+`navigator.wakeLock`; the API also requires a secure context in browsers that enforce this
+requirement. Use HTTPS for the tablet URL. If the browser does not support Wake Lock, use its
+kiosk or system display settings as a fallback.
+
+For Synology DSM, a typical reverse-proxy rule is:
+
+| Setting | Value |
+|---|---|
+| Rule name | `SlimDash` |
+| Source protocol | HTTPS |
+| Source hostname | Your Synology DDNS hostname |
+| Source port | `443` |
+| Destination protocol | HTTP |
+| Destination hostname | NAS LAN IP (for example, `192.168.1.50`) |
+| Destination port | `8099` |
+| HSTS | Leave disabled during initial testing |
+| WebSocket | Enable if using features that require it, such as live-camera relay |
+
+Assign the valid certificate for the DDNS hostname in **Control Panel → Security → Certificate
+→ Settings/Configure**. DSM may show the hostname as the service to configure rather than the
+custom reverse-proxy rule name.
+
+The dashboard then uses `https://YOUR_DDNS_HOSTNAME/tablet`. A Synology DDNS name can track a
+changing public IPv4 address. Do not forward port `8099` directly from the router to the
+Internet. If access is LAN-only, arrange local DNS or router NAT loopback so the DDNS hostname
+resolves/reaches the NAS from inside the network.
+
+If SlimDash returns a forbidden response behind the proxy, inspect the SlimDash log to identify
+the client address it receives before editing `allowed_networks`. The proxy may cause the
+application to see the proxy or Docker gateway address instead of the tablet's address.
+
+### Certificate warning
+
+For Firefox `SEC_ERROR_UNKNOWN_ISSUER`, inspect the certificate presented to the browser.
+If the issuer is `Bitdefender Untrusted CA`, HTTPS inspection may be substituting a local
+certificate for the NAS certificate. Compare the result from another network before changing
+certificate settings or trusting an exception.
+
 ## Current status
 
 The Compose and example configuration files are initial packaging drafts. They have not yet been built or run on the DS223j. Verify the build, Home Assistant API connection, client-IP filtering and Android tablet rendering before treating the deployment as production-ready.
