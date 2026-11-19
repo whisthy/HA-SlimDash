@@ -112,6 +112,6 @@ certificate settings or trusting an exception.
 
 ## Current status
 
-The Compose and example configuration files are initial packaging drafts. They have not yet been built or run on the DS223j. Verify the build, Home Assistant API connection, client-IP filtering and Android tablet rendering before treating the deployment as production-ready.
+The standalone deployment has been built and run on a Synology DS223j with DSM 7.4.1 and Container Manager 24.0.2. The SlimDash container is exposed on LAN port 8099 and connects to the existing Home Assistant Container. The Wake Lock code is present in the `docker-standalone` branch. End-to-end Wake Lock behavior on the Android 7 tablet still depends on browser API support and a valid HTTPS connection; validate it on the target device.
 
-The original add-on files under `slimdash/` and the existing Home Assistant container are left unchanged by this deployment work.
+The original Home Assistant installation and its container configuration are not changed by this deployment.
