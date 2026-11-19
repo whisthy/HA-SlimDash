@@ -47,6 +47,7 @@ Store description: [slimdash/README.md](slimdash/README.md).
 - Cameras: images from Home Assistant, or straight from Frigate when its integration is
   installed (images at the detection rate, live video relayed for recent browsers).
 - Access limited by subnets, with an optional access key.
+- **Optional screen wake lock**: supported browsers can keep the display awake after the first touch or click. The browser must implement the Screen Wake Lock API, and HTTPS is required where the browser enforces secure contexts.
 
 ## Rendering types
 
