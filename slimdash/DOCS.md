@@ -56,6 +56,27 @@ You can publish the dashboards you already use, or build one made for each devic
 `ha light` on an e-reader. Each device then gets its own address. SlimDash keeps the layout:
 sizes, columns and order.
 
+## Standalone Docker deployment
+
+The `docker/` directory contains a standalone Compose deployment for an existing Home Assistant
+Container installation. It runs SlimDash separately from Home Assistant and does not require
+Home Assistant OS or Supervisor. The existing Home Assistant container is not modified.
+
+See [docker/README.md](../docker/README.md) for the full setup. In brief:
+
+1. Keep the repository directory structure intact; the Compose build context is `../slimdash`.
+2. Copy `docker/.env.example` to `docker/.env` and set `HA_URL` plus `HA_TOKEN`.
+   Use a dedicated Home Assistant user and its Long-Lived Access Token. Keep `.env` private.
+3. Copy `docker/config/options.example.json` to `docker/data/options.json` and configure the
+   dashboard name, Home Assistant dashboard path, views and allowed client networks.
+4. Build and start the project with Docker Compose or Synology Container Manager.
+5. Open `http://NAS_LAN_IP:8099/<name>` from the local network.
+
+The default host port is `8099`. Do not publish it directly to the Internet. Restrict
+`allowed_networks` to the networks or device addresses that need access. When using a reverse
+proxy, check the client address recorded by SlimDash before changing the allow-list; a proxy can
+change the source address seen by the application.
+
 ## Pages
 
 | Address | What it shows |
@@ -207,6 +228,52 @@ Address options, for testing:
 Example: `http://IP:8099/kitchen?info=1&fps=2`.
 
 A page with cameras reloads itself every hour, to keep old browsers healthy.
+
+## HTTPS and screen wake lock
+
+The standalone branch includes optional Screen Wake Lock support in the browser code.
+
+- SlimDash requests the screen wake lock after the first touch or click.
+- When the page is hidden, the lock is released. When the page becomes visible again, SlimDash
+  tries to request it again.
+- The browser must implement `navigator.wakeLock`. Unsupported browsers simply skip this feature.
+- The Screen Wake Lock API requires a secure context in browsers that enforce this rule. Use
+  HTTPS; a plain HTTP address on a LAN IP usually does not qualify. A browser's own screen-timeout
+  or kiosk settings remain useful as a fallback.
+
+### Synology DSM reverse-proxy example
+
+For a Synology NAS with a DDNS hostname and a valid certificate:
+
+1. Create or use a Synology DDNS hostname. Synology DDNS updates its address when the public IP
+   changes; a static public IPv4 address is not required.
+2. In DSM, open **Control Panel → Login Portal → Advanced → Reverse Proxy** and create a rule.
+3. Set the source to **HTTPS**, the DDNS hostname and port **443**.
+4. Set the destination to **HTTP**, the NAS LAN address and SlimDash port **8099**.
+5. Enable WebSocket support if the deployment uses features that require WebSockets, such as
+   the live-camera relay.
+6. In **Control Panel → Security → Certificate → Settings/Configure**, assign the certificate
+   issued for that DDNS hostname to the hostname entry. DSM may list the hostname as a service;
+   the custom reverse-proxy rule name itself may not appear.
+7. Initially leave HSTS disabled. Verify the certificate and dashboard over HTTPS before
+   enabling additional browser policies.
+
+Example: a reverse proxy from `https://your-name.synology.me:443` to
+`http://192.168.1.50:8099` serves the dashboard at
+`https://your-name.synology.me/tablet`.
+
+Do not forward port 8099 from the router to the Internet. The reverse proxy should be the
+public-facing HTTPS entry point only if remote access is deliberately required. For certificate
+issuance or renewal, follow the validation method supported by the selected certificate provider
+and router/firewall configuration.
+
+### Certificate troubleshooting
+
+If Firefox reports `SEC_ERROR_UNKNOWN_ISSUER`, inspect the certificate actually presented by
+the server. If its issuer is shown as `Bitdefender Untrusted CA`, an HTTPS inspection component
+may be replacing the NAS certificate. Test from a separate network (for example, mobile data)
+and compare the certificate details. Do not bypass the warning or add a certificate exception
+until the cause is understood.
 
 ## Device tips
 
