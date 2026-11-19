@@ -60,6 +60,26 @@ Custom cards (Mushroom, Bubble Card, button-card…) are rendered from their mai
 (entity, name, icon, color, layout, tap action). Advanced styling and scripted options are
 ignored on purpose: the goal is to stay simple and light on old devices.
 
+### Standalone Docker deployment (fork)
+
+This development branch also contains an independent Docker deployment for an existing
+Home Assistant Container installation. It runs SlimDash in its own container and does not
+require Home Assistant OS or the Supervisor add-on store. It leaves the existing Home Assistant
+container and configuration untouched.
+
+- Compose file: [docker/compose.yaml](docker/compose.yaml)
+- Deployment instructions, environment variables and security notes:
+  [docker/README.md](docker/README.md)
+- Copy `docker/.env.example` to `docker/.env`, set `HA_URL` and a Home Assistant
+  Long-Lived Access Token, and create `docker/data/options.json` from
+  `docker/config/options.example.json`.
+- The default published port is `8099`; for example,
+  `http://NAS_LAN_IP:8099/tablet`.
+
+Keep the repository directory structure intact: the Compose build context points to
+`../slimdash`. Never commit the local `.env` file or expose port 8099 directly to the
+public Internet.
+
 ## Installation (beta)
 
 SlimDash is not in the official app store yet. During the beta, add it as a **custom repository**.
