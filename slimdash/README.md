@@ -38,6 +38,7 @@ updated live, that keeps the layout of your original dashboard.
 - **Light on your server and your network**: pages are rendered once and cached; no long-lived
   token needed.
 - **Access control**: allowed networks and an optional access key.
+- **Optional screen wake lock**: supported browsers can keep the display awake after the first touch or click; this requires Wake Lock API support and, where enforced, HTTPS.
 
 ![SlimDash on four old devices][devices1]
 
@@ -82,6 +83,8 @@ blocking its access to the Internet. A few more good habits:
   power the device directly; a smart plug driven by Home Assistant can keep the charge between
   20 % and 80 %.
 - Keep the device dedicated: no personal accounts (Google, mail) and no apps you do not need.
+
+A separate standalone Docker deployment is available in the development fork; see its repository-level `docker/README.md` for details.
 
 See the **Documentation** tab for setup and options.
 
