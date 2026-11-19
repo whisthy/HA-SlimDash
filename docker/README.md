@@ -30,7 +30,7 @@ The image build context is `../slimdash`. Keep the repository directory structur
 
 The example exposes one dashboard at `/tablet`. The `views` value is empty, so SlimDash uses the first view. Set it to comma-separated view indexes when specific views are required.
 
-For stronger LAN isolation, replace the example `allowed_networks` range with the tablet's fixed IP address in CIDR form (for example, `192.168.1.123/32`). The application checks the client address it receives; verify this behavior from the tablet after deployment.
+The example `allowed_networks` value is `192.168.0.0/16`, which permits clients in the full `192.168.x.x` range, including the NAS address `192.168.1.50`. This is intentionally broader than a typical single-subnet `192.168.1.0/24` rule. If your LAN also uses other private address ranges (for example `10.x.x.x`), add those explicitly. The application checks the client address it receives; verify this behavior from the tablet after deployment.
 
 An optional `access_key` can also be added to `options.json`. Keep the token and access key private.
 
@@ -62,7 +62,7 @@ On Synology, create a Container Manager Project using this Compose file and pres
 - Do not expose port 8099 to the public internet.
 - Use a dedicated Home Assistant account and token with the minimum practical permissions.
 - Keep `.env` out of Git and restrict access to the deployment directory.
-- Restrict `allowed_networks` to the tablet's fixed address once known.
+- The example allows the `192.168.0.0/16` private range. Adjust it if your internal network uses additional address ranges.
 - No TLS is configured; use this service only on a trusted LAN or behind a separately secured proxy.
 - The current application reads its options from `/data/options.json`. The token is supplied as an environment variable; Docker secrets are not supported by the current application code.
 - The container runs the upstream Dockerfile as provided. Non-root hardening and a health check remain follow-up improvements.
