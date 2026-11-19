@@ -1,0 +1,16 @@
+services:
+  slimdash:
+    container_name: slimdash
+    build:
+      context: ../slimdash
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8099:8099"
+    environment:
+      HA_URL: "${HA_URL:-http://192.168.1.50:8123}"
+      HA_TOKEN: "${HA_TOKEN:?Set HA_TOKEN in docker/.env}"
+      SLIMDASH_OPTIONS: /data/options.json
+      SLIMDASH_PORT: "8099"
+    volumes:
+      - ./data:/data
