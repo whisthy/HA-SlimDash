@@ -623,3 +623,37 @@
   document.addEventListener('click', fs, true);
   document.addEventListener('touchend', fs, true);
 })();
+
+
+/* Garder l'écran allumé avec l'API Wake Lock (navigateurs compatibles).
+   L'activation se fait au premier toucher/clic ; le verrou est repris au retour
+   dans l'onglet après une mise en arrière-plan. */
+(function () {
+  var lock = null, pending = false;
+  function requestWakeLock() {
+    if (!navigator.wakeLock || document.visibilityState === 'hidden' || lock || pending) { return; }
+    pending = true;
+    try {
+      navigator.wakeLock.request('screen').then(function (l) {
+        pending = false;
+        lock = l;
+        lock.addEventListener('release', function () {
+          lock = null;
+        });
+      }, function () {
+        pending = false;
+      });
+    } catch (e) {
+      pending = false;
+    }
+  }
+  document.addEventListener('click', requestWakeLock, true);
+  document.addEventListener('touchend', requestWakeLock, true);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') { requestWakeLock(); }
+    else if (lock) {
+      try { lock.release(); } catch (e) {}
+      lock = null;
+    }
+  }, false);
+})();
